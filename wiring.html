@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garden Pump IoT — Wiring Diagram</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Archivo+Black&family=Archivo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f4f1ea;
+    --paper-dark: #e8e2d4;
+    --rust: #c44536;
+    --pump: #d4a017;
+    --water: #2b6cb0;
+    --signal: #38a169;
+    --shadow: #00000022;
+    --grid: #00000010;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    background-image: 
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 20px 20px;
+    color: var(--ink);
+    font-family: 'Archivo', sans-serif;
+    padding: 30px 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+  
+  .header {
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  h1 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: -1px;
+    line-height: 0.95;
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--rust);
+  }
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-align: right;
+    line-height: 1.6;
+    opacity: 0.7;
+  }
+  
+  .section {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    margin-bottom: 24px;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .section-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 8px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-header .tag {
+    background: var(--rust);
+    color: var(--paper);
+    padding: 2px 8px;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+  }
+  .section-body { padding: 20px; }
+
+  /* ═══════ MAIN DIAGRAM ═══════ */
+  .diagram-wrap {
+    background: var(--paper-dark);
+    padding: 16px;
+    overflow-x: auto;
+    border-bottom: 2px solid var(--ink);
+  }
+  .diagram-wrap svg { display: block; margin: 0 auto; min-width: 900px; }
+
+  /* ═══════ CONNECTION TABLE ═══════ */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+  }
+  th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #00000020;
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #00000005; }
+  
+  .pin-tag {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+  }
+  .pin-tag.water { background: var(--water); }
+  .pin-tag.power { background: var(--rust); }
+  .pin-tag.signal { background: var(--signal); }
+  .pin-tag.neutral { background: #2d3748; }
+  
+  .arrow {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--rust);
+    font-weight: 700;
+    margin: 0 8px;
+  }
+  
+  /* ═══════ STEP BLOCKS ═══════ */
+  .step {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px dashed #00000030;
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    background: var(--rust);
+    color: var(--paper);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-body strong { font-family: 'Archivo Black', sans-serif; }
+  .step-body code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 0.85em;
+  }
+  
+  /* ═══════ DANGER BOX ═══════ */
+  .danger {
+    background: #fff8e6;
+    border-left: 6px solid var(--rust);
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .danger strong { color: var(--rust); font-family: 'Archivo Black', sans-serif; }
+  
+  /* ═══════ LEGEND ═══════ */
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #00000005;
+    border-left: 3px solid var(--ink);
+  }
+  .legend-swatch {
+    width: 28px;
+    height: 4px;
+    flex-shrink: 0;
+  }
+  .legend-item-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+  }
+  
+  @media (max-width: 700px) {
+    h1 { font-size: 1.6rem; }
+    body { padding: 16px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>GARDEN PUMP<br>IOT — WIRING</h1>
+    <div class="subtitle">v1.0 / NodeMCU + YF-B3 + 30A Relay</div>
+  </div>
+  <div class="meta">
+    Project: Rohit / Maharashtra<br>
+    Pump: ½ HP / 230V<br>
+    Pipe: ½" BSP
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     CIRCUIT DIAGRAM
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    01 — Complete Circuit
+    <span class="tag">SAFETY CRITICAL</span>
+  </div>
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 950 620" width="100%" xmlns="http://www.w3.org/2000/svg">
+      
+      <defs>
+        <!-- Color definitions -->
+        <marker id="arrowR" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#c44536"/>
+        </marker>
+        <marker id="arrowB" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#2b6cb0"/>
+        </marker>
+        <marker id="arrowG" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#38a169"/>
+        </marker>
+        <marker id="arrowK" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#0a0a0a"/>
+        </marker>
+      </defs>
+
+      <!-- ══════════════════════ AC MAINS SECTION ══════════════════════ -->
+      <text x="20" y="40" font-family="Archivo Black" font-size="11" fill="#c44536" letter-spacing="2">230V AC MAINS</text>
+      <text x="20" y="55" font-family="JetBrains Mono" font-size="9" fill="#0a0a0a" opacity="0.6">via 6A MCB</text>
+      
+      <!-- L wire (red) -->
+      <circle cx="40" cy="80" r="5" fill="#c44536"/>
+      <text x="52" y="84" font-family="JetBrains Mono" font-size="10" fill="#c44536" font-weight="700">L  (Live)</text>
+      <line x1="40" y1="80" x2="40" y2="540" stroke="#c44536" stroke-width="2.5"/>
+      
+      <!-- N wire (dark) -->
+      <circle cx="80" cy="80" r="5" fill="#2d3748"/>
+      <text x="92" y="84" font-family="JetBrains Mono" font-size="10" fill="#2d3748" font-weight="700">N  (Neutral)</text>
+      <line x1="80" y1="80" x2="80" y2="555" stroke="#2d3748" stroke-width="2.5"/>
+      
+      <!-- E wire (green) -->
+      <circle cx="135" cy="80" r="5" fill="#38a169"/>
+      <text x="147" y="84" font-family="JetBrains Mono" font-size="10" fill="#38a169" font-weight="700">E  (Earth)</text>
+      <line x1="135" y1="80" x2="135" y2="555" stroke="#38a169" stroke-width="2.5" stroke-dasharray="6,4"/>
+      
+      <!-- ══════════════════════ 5V USB ADAPTER ══════════════════════ -->
+      <rect x="190" y="120" width="160" height="80" fill="#f4f1ea" stroke="#0a0a0a" stroke-width="2"/>
+      <rect x="190" y="120" width="160" height="22" fill="#0a0a0a"/>
+      <text x="200" y="135" font-family="JetBrains Mono" font-size="10" fill="#f4f1ea" font-weight="700">5V USB ADAPTER</text>
+      <text x="200" y="158" font-family="JetBrains Mono" font-size="9" fill="#0a0a0a">230V AC → 5V DC</text>
+      <text x="200" y="172" font-family="JetBrains Mono" font-size="9" fill="#0a0a0a">Output: micro-USB</text>
+      <text x="200" y="186" font-family="JetBrains Mono" font-size="8" fill="#0a0a0a" opacity="0.6">(any phone charger ≥1A)</text>
+      
+      <!-- AC input to adapter -->
+      <line x1="40" y1="160" x2="190" y2="160" stroke="#c44536" stroke-width="2.5"/>
+      <line x1="80" y1="180" x2="190" y2="180" stroke="#2d3748" stroke-width="2.5"/>
+      <text x="100" y="155" font-family="JetBrains Mono" font-size="8" fill="#c44536">L</text>
+      <text x="100" y="195" font-family="JetBrains Mono" font-size="8" fill="#2d3748">N</text>
+      
+      <!-- DC output -->
+      <line x1="350" y1="155" x2="430" y2="155" stroke="#c44536" stroke-width="2" stroke-dasharray="3,3"/>
+      <text x="358" y="150" font-family="JetBrains Mono" font-size="8" fill="#c44536">+5V</text>
+      <line x1="350" y1="175" x2="430" y2="175" stroke="#2d3748" stroke-width="2" stroke-dasharray="3,3"/>
+      <text x="358" y="188" font-family="JetBrains Mono" font-size="8" fill="#2d3748">GND</text>
+      
+      <!-- ══════════════════════ NODEMCU ══════════════════════ -->
+      <rect x="430" y="100" width="200" height="180" fill="#f4f1ea" stroke="#0a0a0a" stroke-width="2"/>
+      <rect x="430" y="100" width="200" height="22" fill="#0a0a0a"/>
+      <text x="440" y="115" font-family="JetBrains Mono" font-size="10" fill="#f4f1ea" font-weight="700">NODEMCU ESP8266</text>
+      <text x="595" y="115" font-family="JetBrains Mono" font-size="8" fill="#f4f1ea" opacity="0.7">[BRAIN]</text>
+      
+      <!-- NodeMCU pins -->
+      <g font-family="JetBrains Mono" font-size="9" font-weight="700">
+        <!-- Left side pins (input) -->
+        <rect x="430" y="148" width="14" height="10" fill="#c44536"/>
+        <text x="448" y="157" fill="#c44536">VIN  +5V in</text>
+        
+        <rect x="430" y="170" width="14" height="10" fill="#2d3748"/>
+        <text x="448" y="179" fill="#2d3748">GND</text>
+        
+        <rect x="430" y="200" width="14" height="10" fill="#d4a017"/>
+        <text x="448" y="209" fill="#0a0a0a">3V3  out</text>
+        
+        <rect x="430" y="222" width="14" height="10" fill="#2d3748"/>
+        <text x="448" y="231" fill="#2d3748">GND</text>
+        
+        <rect x="430" y="252" width="14" height="10" fill="#38a169"/>
+        <text x="448" y="261" fill="#38a169">D2   (GPIO4) interrupt</text>
+        
+        <!-- Right side pins (output) -->
+        <text x="555" y="157" fill="#c44536" text-anchor="end">D1 (GPIO5)</text>
+        <rect x="616" y="148" width="14" height="10" fill="#c44536"/>
+        
+        <text x="555" y="179" fill="#0a0a0a" text-anchor="end">5V (VU)</text>
+        <rect x="616" y="170" width="14" height="10" fill="#d4a017"/>
+        
+        <text x="555" y="209" fill="#2d3748" text-anchor="end">GND</text>
+        <rect x="616" y="200" width="14" height="10" fill="#2d3748"/>
+      </g>
+      
+      <!-- WiFi indicator -->
+      <g transform="translate(540, 245)">
+        <path d="M0,0 Q15,-12 30,0" fill="none" stroke="#2b6cb0" stroke-width="2"/>
+        <path d="M5,5 Q15,-4 25,5" fill="none" stroke="#2b6cb0" stroke-width="2"/>
+        <circle cx="15" cy="12" r="3" fill="#2b6cb0"/>
+        <text x="40" y="12" font-family="JetBrains Mono" font-size="9" fill="#2b6cb0" font-weight="700">WiFi AP</text>
+        <text x="40" y="24" font-family="JetBrains Mono" font-size="8" fill="#2b6cb0">"GardenPump"</text>
+      </g>
+      
+      <!-- ══════════════════════ YF-B3 FLOW SENSOR ══════════════════════ -->
+      <g transform="translate(720, 100)">
+        <rect x="0" y="0" width="200" height="180" fill="#f4f1ea" stroke="#0a0a0a" stroke-width="2"/>
+        <rect x="0" y="0" width="200" height="22" fill="#0a0a0a"/>
+        <text x="10" y="15" font-family="JetBrains Mono" font-size="10" fill="#f4f1ea" font-weight="700">YF-B3 FLOW SENSOR</text>
+        <text x="160" y="15" font-family="JetBrains Mono" font-size="8" fill="#f4f1ea" opacity="0.7">[EYE]</text>
+        
+        <!-- Sensor body -->
+        <rect x="50" y="45" width="100" height="50" fill="#d4a017" stroke="#0a0a0a" stroke-width="1.5" rx="3"/>
+        <text x="100" y="75" font-family="JetBrains Mono" font-size="9" text-anchor="middle" fill="#0a0a0a">YF-B3 G½"</text>
+        
+        <!-- Water inlet (left) -->
+        <rect x="20" y="60" width="30" height="20" fill="#2b6cb0" stroke="#0a0a0a" stroke-width="1"/>
+        <line x1="0" y1="70" x2="20" y2="70" stroke="#2b6cb0" stroke-width="6" marker-end="url(#arrowB)"/>
+        <text x="-5" y="105" font-family="JetBrains Mono" font-size="8" fill="#2b6cb0">water in →</text>
+        
+        <!-- Water outlet (right) -->
+        <rect x="150" y="60" width="30" height="20" fill="#2b6cb0" stroke="#0a0a0a" stroke-width="1"/>
+        <line x1="180" y1="70" x2="200" y2="70" stroke="#2b6cb0" stroke-width="6" marker-end="url(#arrowB)"/>
+        <text x="155" y="105" font-family="JetBrains Mono" font-size="8" fill="#2b6cb0">→ to pump</text>
+        
+        <!-- 3 wires coming out top of sensor -->
+        <line x1="80" y1="45" x2="80" y2="125" stroke="#c44536" stroke-width="2"/>
+        <line x1="100" y1="45" x2="100" y2="135" stroke="#2d3748" stroke-width="2"/>
+        <line x1="120" y1="45" x2="120" y2="145" stroke="#d4a017" stroke-width="2"/>
+        
+        <!-- Labels -->
+        <text x="74" y="155" font-family="JetBrains Mono" font-size="8" fill="#c44536" font-weight="700">RED</text>
+        <text x="68" y="166" font-family="JetBrains Mono" font-size="7" fill="#c44536">+5V</text>
+        
+        <text x="92" y="155" font-family="JetBrains Mono" font-size="8" fill="#2d3748" font-weight="700">BLK</text>
+        <text x="91" y="166" font-family="JetBrains Mono" font-size="7" fill="#2d3748">GND</text>
+        
+        <text x="112" y="155" font-family="JetBrains Mono" font-size="8" fill="#b8860b" font-weight="700">YEL</text>
+        <text x="108" y="166" font-family="JetBrains Mono" font-size="7" fill="#b8860b">pulse</text>
+      </g>
+      
+      <!-- Wires from sensor to NodeMCU -->
+      <!-- Red wire: sensor red → NodeMCU 5V (VU) -->
+      <path d="M 800,245 L 800,260 L 660,260 L 660,175 L 630,175" 
+            fill="none" stroke="#c44536" stroke-width="2"/>
+      <!-- Black wire: sensor black → NodeMCU GND -->
+      <path d="M 820,245 L 820,275 L 670,275 L 670,205 L 630,205" 
+            fill="none" stroke="#2d3748" stroke-width="2"/>
+      <!-- Yellow wire: sensor yellow → NodeMCU D2 -->
+      <path d="M 840,245 L 840,295 L 420,295 L 420,257 L 430,257" 
+            fill="none" stroke="#d4a017" stroke-width="2"/>
+      
+      <!-- ══════════════════════ 30A RELAY MODULE ══════════════════════ -->
+      <g transform="translate(190, 340)">
+        <rect x="0" y="0" width="240" height="180" fill="#f4f1ea" stroke="#0a0a0a" stroke-width="2"/>
+        <rect x="0" y="0" width="240" height="22" fill="#0a0a0a"/>
+        <text x="10" y="15" font-family="JetBrains Mono" font-size="10" fill="#f4f1ea" font-weight="700">30A RELAY MODULE 5V</text>
+        <text x="200" y="15" font-family="JetBrains Mono" font-size="8" fill="#f4f1ea" opacity="0.7">[SWITCH]</text>
+        
+        <!-- Control side (left) -->
+        <text x="10" y="45" font-family="JetBrains Mono" font-size="8" fill="#0a0a0a" opacity="0.6" letter-spacing="1">CONTROL SIDE (DC)</text>
+        
+        <rect x="15" y="55" width="18" height="14" fill="#c44536"/>
+        <text x="40" y="66" font-family="JetBrains Mono" font-size="9" fill="#c44536" font-weight="700">VCC  +5V</text>
+        
+        <rect x="15" y="80" width="18" height="14" fill="#2d3748"/>
+        <text x="40" y="91" font-family="JetBrains Mono" font-size="9" fill="#2d3748" font-weight="700">GND</text>
+        
+        <rect x="15" y="105" width="18" height="14" fill="#38a169"/>
+        <text x="40" y="116" font-family="JetBrains Mono" font-size="9" fill="#38a169" font-weight="700">IN   (signal)</text>
+        
+        <!-- High/Low jumper -->
+        <rect x="15" y="135" width="40" height="20" fill="none" stroke="#0a0a0a" stroke-width="1" stroke-dasharray="2,2"/>
+        <text x="60" y="145" font-family="JetBrains Mono" font-size="7" fill="#0a0a0a">Jumper:</text>
+        <text x="60" y="155" font-family="JetBrains Mono" font-size="7" fill="#c44536" font-weight="700">SET TO HIGH</text>
+        
+        <!-- Divider -->
+        <line x1="120" y1="35" x2="120" y2="170" stroke="#0a0a0a" stroke-width="1" stroke-dasharray="3,3"/>
+        
+        <!-- AC side (right) -->
+        <text x="130" y="45" font-family="JetBrains Mono" font-size="8" fill="#c44536" opacity="0.8" letter-spacing="1">AC SIDE (230V)</text>
+        
+        <rect x="135" y="55" width="18" height="14" fill="#666"/>
+        <text x="160" y="66" font-family="JetBrains Mono" font-size="9" fill="#0a0a0a" font-weight="700">NO   normally open</text>
+        
+        <rect x="135" y="80" width="18" height="14" fill="#666"/>
+        <text x="160" y="91" font-family="JetBrains Mono" font-size="9" fill="#0a0a0a" font-weight="700">COM  common</text>
+        
+        <rect x="135" y="105" width="18" height="14" fill="#666"/>
+        <text x="160" y="116" font-family="JetBrains Mono" font-size="9" fill="#0a0a0a" font-weight="700" opacity="0.4">NC   (not used)</text>
+        
+        <!-- Relay symbol inside -->
+        <g transform="translate(150, 138)">
+          <circle cx="0" cy="0" r="6" fill="none" stroke="#c44536" stroke-width="1.5"/>
+          <text x="-3" y="3" font-family="JetBrains Mono" font-size="8" fill="#c44536" font-weight="700">R</text>
+        </g>
+      </g>
+      
+      <!-- Wires from NodeMCU to Relay -->
+      <!-- 5V from NodeMCU VU → Relay VCC -->
+      <path d="M 630,175 L 670,175 L 670,330 L 290,330 L 290,395 L 208,395 L 208,395" 
+            fill="none" stroke="#c44536" stroke-width="2"/>
+      <text x="675" y="190" font-family="JetBrains Mono" font-size="7" fill="#c44536">+5V to relay</text>
+      
+      <!-- GND from NodeMCU → Relay GND -->
+      <path d="M 630,205 L 660,205 L 660,335 L 280,335 L 280,420 L 208,420" 
+            fill="none" stroke="#2d3748" stroke-width="2"/>
+      
+      <!-- D1 from NodeMCU → Relay IN -->
+      <path d="M 630,155 L 650,155 L 650,325 L 270,325 L 270,445 L 208,445" 
+            fill="none" stroke="#38a169" stroke-width="2"/>
+      <text x="655" y="170" font-family="JetBrains Mono" font-size="7" fill="#38a169">D1 → IN</text>
+      
+      <!-- ══════════════════════ PUMP ══════════════════════ -->
+      <g transform="translate(540, 380)">
+        <rect x="0" y="0" width="180" height="140" fill="#f4f1ea" stroke="#0a0a0a" stroke-width="2"/>
+        <rect x="0" y="0" width="180" height="22" fill="#0a0a0a"/>
+        <text x="10" y="15" font-family="JetBrains Mono" font-size="10" fill="#f4f1ea" font-weight="700">½ HP PUMP</text>
+        <text x="138" y="15" font-family="JetBrains Mono" font-size="8" fill="#f4f1ea" opacity="0.7">[MOTOR]</text>
+        
+        <!-- Motor symbol -->
+        <circle cx="90" cy="75" r="35" fill="none" stroke="#0a0a0a" stroke-width="2"/>
+        <text x="90" y="82" font-family="Archivo Black" font-size="22" text-anchor="middle" fill="#0a0a0a">M</text>
+        <text x="90" y="125" font-family="JetBrains Mono" font-size="8" text-anchor="middle" fill="#0a0a0a">230V ~ single phase</text>
+        
+        <!-- Motor terminals -->
+        <rect x="35" y="45" width="14" height="10" fill="#c44536"/>
+        <text x="22" y="40" font-family="JetBrains Mono" font-size="8" fill="#c44536">L</text>
+        
+        <rect x="130" y="45" width="14" height="10" fill="#2d3748"/>
+        <text x="148" y="40" font-family="JetBrains Mono" font-size="8" fill="#2d3748">N</text>
+        
+        <rect x="80" y="115" width="14" height="10" fill="#38a169"/>
+        <text x="98" y="123" font-family="JetBrains Mono" font-size="8" fill="#38a169">E</text>
+      </g>
+      
+      <!-- Wires for pump power -->
+      <!-- L → Relay COM -->
+      <path d="M 40,485 L 358,485 L 358,427 L 343,427" 
+            fill="none" stroke="#c44536" stroke-width="3"/>
+      
+      <!-- Relay NO → Pump L -->
+      <path d="M 343,402 L 500,402 L 500,425 L 575,425" 
+            fill="none" stroke="#c44536" stroke-width="3"/>
+      <text x="430" y="395" font-family="JetBrains Mono" font-size="9" fill="#c44536" font-weight="700">SWITCHED LIVE</text>
+      
+      <!-- N direct to pump -->
+      <path d="M 80,510 L 510,510 L 510,425 L 684,425" 
+            fill="none" stroke="#2d3748" stroke-width="3"/>
+      <text x="300" y="503" font-family="JetBrains Mono" font-size="9" fill="#2d3748" font-weight="700">NEUTRAL (direct)</text>
+      
+      <!-- Earth to pump body -->
+      <path d="M 135,540 L 627,540 L 627,505" 
+            fill="none" stroke="#38a169" stroke-width="2" stroke-dasharray="6,4"/>
+      <text x="350" y="533" font-family="JetBrains Mono" font-size="9" fill="#38a169" font-weight="700">EARTH (mandatory!)</text>
+      
+      <!-- ══════════════════════ BOTTOM LABELS ══════════════════════ -->
+      <rect x="20" y="575" width="910" height="35" fill="#0a0a0a"/>
+      <text x="30" y="595" font-family="JetBrains Mono" font-size="9" fill="#f4f1ea" letter-spacing="1">
+        SIGNAL PATH: <tspan fill="#d4a017">water flow</tspan> → <tspan fill="#d4a017">YF-B3 pulses</tspan> → <tspan fill="#38a169">D2 interrupt</tspan> → NodeMCU logic → <tspan fill="#38a169">D1 HIGH</tspan> → relay closes → <tspan fill="#c44536">pump ON</tspan>
+      </text>
+      
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     LEGEND
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">02 — Wire Colour Legend</div>
+  <div class="section-body">
+    <div class="legend-grid">
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:#c44536"></div>
+        <div class="legend-item-label">RED — 230V Live OR +5V DC</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:#2d3748"></div>
+        <div class="legend-item-label">BLACK — Neutral OR GND</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:#38a169"></div>
+        <div class="legend-item-label">GREEN — Earth OR signal</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:#d4a017"></div>
+        <div class="legend-item-label">YELLOW — Sensor pulse data</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:#2b6cb0"></div>
+        <div class="legend-item-label">BLUE — Water flow direction</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     CONNECTION TABLE
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">03 — Connection Table</div>
+  <table>
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>Wire</th>
+        <th>To</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pin-tag power">L MAINS</span></td>
+        <td>2.5mm² red</td>
+        <td><span class="pin-tag">USB Adapter L</span></td>
+        <td>Through 6A MCB</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag neutral">N MAINS</span></td>
+        <td>2.5mm² black</td>
+        <td><span class="pin-tag">USB Adapter N</span></td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag">USB Adapter +5V</span></td>
+        <td>micro-USB cable</td>
+        <td><span class="pin-tag">NodeMCU USB port</span></td>
+        <td>Powers the brain</td>
+      </tr>
+      <tr>
+        <td colspan="4" style="background:#0a0a0a;color:#f4f1ea;text-align:center;font-size:0.7rem;letter-spacing:2px;padding:6px;">⎯⎯ NodeMCU ↔ Relay (DC SIDE) ⎯⎯</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag">NodeMCU VU (5V)</span></td>
+        <td>jumper wire</td>
+        <td><span class="pin-tag power">Relay VCC</span></td>
+        <td>Powers relay coil</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag">NodeMCU GND</span></td>
+        <td>jumper wire</td>
+        <td><span class="pin-tag neutral">Relay GND</span></td>
+        <td>Common ground</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag">NodeMCU D1</span></td>
+        <td>jumper wire</td>
+        <td><span class="pin-tag signal">Relay IN</span></td>
+        <td>Control signal</td>
+      </tr>
+      <tr>
+        <td colspan="4" style="background:#0a0a0a;color:#f4f1ea;text-align:center;font-size:0.7rem;letter-spacing:2px;padding:6px;">⎯⎯ NodeMCU ↔ YF-B3 (SENSOR) ⎯⎯</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag">NodeMCU VU (5V)</span></td>
+        <td>jumper wire</td>
+        <td><span class="pin-tag power">YF-B3 RED</span></td>
+        <td>Sensor power</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag">NodeMCU GND</span></td>
+        <td>jumper wire</td>
+        <td><span class="pin-tag neutral">YF-B3 BLACK</span></td>
+        <td>Common ground</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag">NodeMCU D2</span></td>
+        <td>jumper wire</td>
+        <td><span class="pin-tag" style="background:#b8860b">YF-B3 YELLOW</span></td>
+        <td>Pulse signal input</td>
+      </tr>
+      <tr>
+        <td colspan="4" style="background:#0a0a0a;color:#f4f1ea;text-align:center;font-size:0.7rem;letter-spacing:2px;padding:6px;">⎯⎯ Relay ↔ Pump (AC SIDE — 230V) ⎯⎯</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag power">L MAINS</span></td>
+        <td>2.5mm² red</td>
+        <td><span class="pin-tag">Relay COM</span></td>
+        <td>Live in to switch</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag">Relay NO</span></td>
+        <td>2.5mm² red</td>
+        <td><span class="pin-tag power">Pump L terminal</span></td>
+        <td>Switched live to pump</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag neutral">N MAINS</span></td>
+        <td>2.5mm² black</td>
+        <td><span class="pin-tag neutral">Pump N terminal</span></td>
+        <td>Direct, not switched</td>
+      </tr>
+      <tr>
+        <td><span class="pin-tag signal">E MAINS</span></td>
+        <td>2.5mm² green</td>
+        <td><span class="pin-tag signal">Pump body Earth</span></td>
+        <td>Safety ground — MANDATORY</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PLUMBING
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">04 — Plumbing Layout</div>
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 900 200" width="100%" xmlns="http://www.w3.org/2000/svg">
+      
+      <!-- Municipal line -->
+      <text x="15" y="35" font-family="Archivo Black" font-size="11" fill="#2b6cb0">MUNICIPAL LINE</text>
+      <line x1="15" y1="100" x2="120" y2="100" stroke="#2b6cb0" stroke-width="16"/>
+      <polygon points="120,92 130,100 120,108" fill="#2b6cb0"/>
+      
+      <!-- Filter / strainer -->
+      <g transform="translate(140, 80)">
+        <rect x="0" y="10" width="50" height="20" fill="#f4f1ea" stroke="#0a0a0a" stroke-width="1.5"/>
+        <line x1="10" y1="14" x2="10" y2="26" stroke="#0a0a0a" stroke-width="1"/>
+        <line x1="20" y1="14" x2="20" y2="26" stroke="#0a0a0a" stroke-width="1"/>
+        <line x1="30" y1="14" x2="30" y2="26" stroke="#0a0a0a" stroke-width="1"/>
+        <line x1="40" y1="14" x2="40" y2="26" stroke="#0a0a0a" stroke-width="1"/>
+        <text x="25" y="50" font-family="JetBrains Mono" font-size="8" text-anchor="middle">strainer</text>
+        <text x="25" y="60" font-family="JetBrains Mono" font-size="7" text-anchor="middle" opacity="0.6">½" mesh</text>
+      </g>
+      
+      <!-- Union -->
+      <g transform="translate(200, 80)">
+        <rect x="0" y="8" width="20" height="24" fill="#888" stroke="#0a0a0a"/>
+        <text x="10" y="50" font-family="JetBrains Mono" font-size="8" text-anchor="middle">union</text>
+      </g>
+      
+      <!-- Flow sensor YF-B3 -->
+      <g transform="translate(230, 70)">
+        <rect x="0" y="10" width="120" height="40" fill="#d4a017" stroke="#0a0a0a" stroke-width="2" rx="4"/>
+        <text x="60" y="30" font-family="JetBrains Mono" font-size="10" text-anchor="middle" font-weight="700">YF-B3</text>
+        <text x="60" y="42" font-family="JetBrains Mono" font-size="8" text-anchor="middle">flow sensor</text>
+        <!-- Arrow direction -->
+        <line x1="20" y1="56" x2="100" y2="56" stroke="#c44536" stroke-width="2" marker-end="url(#arrowR)"/>
+        <text x="60" y="68" font-family="JetBrains Mono" font-size="7" text-anchor="middle" fill="#c44536" font-weight="700">FLOW DIRECTION</text>
+        <!-- Wires going up -->
+        <line x1="50" y1="10" x2="50" y2="-15" stroke="#c44536" stroke-width="1.5"/>
+        <line x1="60" y1="10" x2="60" y2="-15" stroke="#2d3748" stroke-width="1.5"/>
+        <line x1="70" y1="10" x2="70" y2="-15" stroke="#d4a017" stroke-width="1.5"/>
+        <text x="60" y="-22" font-family="JetBrains Mono" font-size="7" text-anchor="middle">to NodeMCU</text>
+      </g>
+      
+      <!-- Union 2 -->
+      <g transform="translate(360, 80)">
+        <rect x="0" y="8" width="20" height="24" fill="#888" stroke="#0a0a0a"/>
+        <text x="10" y="50" font-family="JetBrains Mono" font-size="8" text-anchor="middle">union</text>
+      </g>
+      
+      <!-- Pipe to pump -->
+      <line x1="380" y1="100" x2="490" y2="100" stroke="#2b6cb0" stroke-width="16"/>
+      
+      <!-- Pump -->
+      <g transform="translate(500, 60)">
+        <rect x="0" y="0" width="100" height="80" fill="#f4f1ea" stroke="#0a0a0a" stroke-width="2"/>
+        <circle cx="50" cy="40" r="22" fill="none" stroke="#0a0a0a" stroke-width="2"/>
+        <text x="50" y="46" font-family="Archivo Black" font-size="14" text-anchor="middle">M</text>
+        <text x="50" y="95" font-family="JetBrains Mono" font-size="9" text-anchor="middle">½ HP PUMP</text>
+      </g>
+      
+      <!-- Pipe pump → CPH -->
+      <line x1="600" y1="100" x2="700" y2="100" stroke="#2b6cb0" stroke-width="16"/>
+      
+      <!-- CPH-15 (optional, kept as check valve) -->
+      <g transform="translate(710, 60)">
+        <rect x="0" y="0" width="80" height="80" fill="#f4f1ea" stroke="#0a0a0a" stroke-width="2" stroke-dasharray="4,3"/>
+        <text x="40" y="30" font-family="JetBrains Mono" font-size="9" text-anchor="middle">CPH-15</text>
+        <text x="40" y="44" font-family="JetBrains Mono" font-size="7" text-anchor="middle" opacity="0.6">existing</text>
+        <text x="40" y="56" font-family="JetBrains Mono" font-size="7" text-anchor="middle" opacity="0.6">(optional)</text>
+        <text x="40" y="68" font-family="JetBrains Mono" font-size="7" text-anchor="middle" opacity="0.6">acts as</text>
+        <text x="40" y="78" font-family="JetBrains Mono" font-size="7" text-anchor="middle" opacity="0.6">check valve</text>
+      </g>
+      
+      <!-- Output to garden -->
+      <line x1="790" y1="100" x2="890" y2="100" stroke="#2b6cb0" stroke-width="16"/>
+      <polygon points="880,92 890,100 880,108" fill="#2b6cb0"/>
+      <text x="820" y="135" font-family="Archivo Black" font-size="11" fill="#2b6cb0">TO GARDEN</text>
+      
+      <!-- Bottom note -->
+      <text x="450" y="180" font-family="JetBrains Mono" font-size="8" text-anchor="middle" fill="#0a0a0a" opacity="0.6">
+        FLOW: Municipal → Strainer → YF-B3 (records flow) → Pump (boosts) → CPH-15 (check valve) → Garden
+      </text>
+      
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ASSEMBLY STEPS
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">05 — Assembly Steps</div>
+  <div class="section-body">
+    
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <strong>POWER OFF EVERYTHING.</strong> Turn off mains MCB. Confirm with multimeter no voltage on the line. Do this before touching any wires.
+      </div>
+    </div>
+    
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <strong>Plumbing first.</strong> Install the YF-B3 sensor inline on the inlet pipe with brass unions on both sides. <strong>Arrow on sensor body must point toward the pump.</strong> Use Teflon tape on threads. Install the mesh strainer just before the sensor.
+      </div>
+    </div>
+    
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <strong>Wire the DC side.</strong> Connect NodeMCU to relay and sensor using jumper wires per the connection table above. All connections inside the enclosure.
+        <br>Key pins: <code>D1 → Relay IN</code>, <code>D2 → YF-B3 yellow</code>, <code>5V → Relay VCC + YF-B3 red</code>, <code>GND → Relay GND + YF-B3 black</code>
+      </div>
+    </div>
+    
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <strong>Wire the AC side.</strong> Use 2.5mm² wire only. Connect mains L to Relay COM. Connect Relay NO to Pump L. Connect mains N directly to Pump N. Connect mains Earth to Pump body.
+      </div>
+    </div>
+    
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <strong>Verify the relay jumper.</strong> The 30A module has a HIGH/LOW trigger jumper. <strong>Set it to HIGH</strong> so the relay activates when D1 goes HIGH (matches the code).
+      </div>
+    </div>
+    
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <strong>Mount everything in the IP65 enclosure.</strong> NodeMCU + relay + USB adapter inside. Use cable glands for wires entering/exiting. Pump should be outside the box.
+      </div>
+    </div>
+    
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <strong>Flash the Arduino code</strong> (will be provided next). Connect NodeMCU to your laptop via USB, upload the sketch.
+      </div>
+    </div>
+    
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-body">
+        <strong>First power-on test.</strong> Turn on MCB. NodeMCU should boot, create WiFi "GardenPump" hotspot. Connect phone, open <code>http://192.168.4.1</code>. Use manual ON button to test pump. Listen for relay click + pump start.
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SAFETY
+     ═══════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    06 — Safety Critical
+    <span class="tag">DO NOT SKIP</span>
+  </div>
+  <div class="section-body">
+    
+    <div class="danger">
+      <strong>⚠ EARTH IS MANDATORY.</strong> The pump motor body MUST be earthed. Without it, any internal short turns the metal body live at 230V. Anyone touching it on wet ground = serious shock. Run a green wire from mains earth to the pump's earth terminal (marked with ⏚ symbol).
+    </div>
+    
+    <div class="danger">
+      <strong>⚠ NEVER WORK ON LIVE CIRCUITS.</strong> Always switch off the 6A MCB before opening the enclosure or touching any wire. Verify with a multimeter or non-contact voltage tester.
+    </div>
+    
+    <div class="danger">
+      <strong>⚠ KEEP DC AND AC SEPARATE.</strong> Inside the enclosure, keep low-voltage wires (NodeMCU side, sensor side) physically separated from 230V wires. Use the divider/partition if your box has one. Cable ties to bundle DC wires together away from AC.
+    </div>
+    
+    <div class="danger">
+      <strong>⚠ WATERPROOF THE ENCLOSURE.</strong> IP65 rated box only. Cable glands on every wire entry. Mount with cable glands facing DOWN so any water drips away. Silicone sealant around any imperfect seals.
+    </div>
+    
+    <div class="danger">
+      <strong>⚠ INSTALL A 6A MCB upstream.</strong> Don't skip this. If anything shorts, the MCB trips and saves your wiring/equipment from burning.
+    </div>
+    
+  </div>
+</div>
+
+<p style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:0.7rem;opacity:0.5;margin-top:30px;letter-spacing:2px;">
+  END OF WIRING DIAGRAM · CODE COMES NEXT
+</p>
+
+</body>
+</html>
